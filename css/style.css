@@ -571,3 +571,6 @@ section.acad h4{color:#22406b}
 .letter.help .body{max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow-y:auto}
 @media (max-width:980px){.letter.help .body{max-height:none;overflow:visible}}
 .letter .body button.ghost{color:var(--ink);border-color:#0005}
+/* toutes les fenêtres défilent : c'est le voile (l'overlay) qui défile, jamais un contenu coupé */
+.overlay>.letter,.overlay>.book{max-height:none;overflow:visible}
+.overlay .letter .body,.overlay .page,.overlay .book.gazette,.letter.help .body{max-height:none;overflow:visible}
