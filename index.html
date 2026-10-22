@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kebec</title>
+<meta name="description" content="Kebec : et si l'histoire avait tourné autrement ? Jeu de stratégie historique bilingue, 1608–2000.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23142030'/%3E%3Cpath d='M16 5c-3 4-3 8 0 11 3-3 3-7 0-11zM7 13c0 5 4 7 8 6-1-4-4-6-8-6zm18 0c-4 0-7 2-8 6 4 1 8-1 8-6zM11 21h10v2H11z' fill='%23c9a24a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Alegreya+Sans:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cormorant+SC:wght@500;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Josefin+Sans:wght@400;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="i-pop" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3.2"/><path d="M3 20c0-4 3-6.5 6-6.5s6 2.5 6 6.5z"/><circle cx="17" cy="8.5" r="2.5"/><path d="M15.5 13.6c3 .2 5.5 2.3 5.5 6.4h-4.5c0-2.6-.4-4.7-1-6.4z"/></symbol>
+ <symbol id="i-women" viewBox="0 0 24 24"><circle cx="12" cy="6" r="3.2"/><path d="M12 10.5c-2.2 0-3.6 1.8-4 4l-2 6h12l-2-6c-.4-2.2-1.8-4-4-4z"/></symbol>
+ <symbol id="i-food" viewBox="0 0 24 24"><path d="M12 22V9M12 9c-3-1-4-4-4-6 2 0 4 2 4 6zm0 0c3-1 4-4 4-6-2 0-4 2-4 6zm0 5c-3-1-4.5-3.5-4.5-5.5 2 0 4.5 2 4.5 5.5zm0 0c3-1 4.5-3.5 4.5-5.5-2 0-4.5 2-4.5 5.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+ <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 6.5c-1.4 2-1.4 3.6 0 5 1.4-1.4 1.4-3 0-5zM8 10.5c0 2.3 1.8 3.3 3.6 2.8-.4-1.8-1.8-2.8-3.6-2.8zm8 0c-1.8 0-3.2 1-3.6 2.8 1.8.5 3.6-.5 3.6-2.8zM9.5 15h5v1.4h-5z"/></symbol>
+ <symbol id="i-fur" viewBox="0 0 24 24"><path d="M6 4c2 1 4 1.2 6 1.2S16 5 18 4c.5 3-1 4.5-1 7s2 3.5 1 9c-2-1-4-1.3-6-1.3S8 19 6 20c-1-5.5 1-6.5 1-9S5.5 7 6 4z"/></symbol>
+ <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></symbol>
+ <symbol id="i-fleur" viewBox="0 0 24 24"><path d="M12 2c-3 3.6-3 7.6 0 10.6 3-3 3-7 0-10.6zM3 10c0 5 4 7 8 6-1-3.6-4-6-8-6zm18 0c-4 0-7 2.4-8 6 4 1 8-1 8-6zM7 17.5h10v2H7zM11 19.5h2V22h-2z"/></symbol>
+ <symbol id="i-feather" viewBox="0 0 24 24"><path d="M20 3C12 4 7 9 6 17l-2 4 1 1 4-2c8-1 13-6 14-14l-3 1 1-2c-1 0-1 0-1-2zM8 16c2-4 5-7 9-9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+ <symbol id="i-cross" viewBox="0 0 24 24"><path d="M10.5 2h3v6h6v3h-6v11h-3V11h-6V8h6z"/></symbol>
+ <symbol id="i-war" viewBox="0 0 24 24"><path d="M4 20 18 6M15 3l6 6M6 4l14 14M3 15l6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+ <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></symbol>
+ <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/></symbol>
+ <symbol id="i-city" viewBox="0 0 24 24"><path d="M3 20V11l5 3V11l5 3V6h3v14zM18 20V9h3v11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14.5 6V3" stroke="currentColor" stroke-width="1.4"/></symbol><symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 12h17M12 3.5c-3 3-3 14 0 17M12 3.5c3 3 3 14 0 17" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+ <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4.5c3-1 6-.7 8 1 2-1.7 5-2 8-1V19c-3-1-6-.7-8 1-2-1.7-5-2-8-1z" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+</svg>
+
+<div id="app">
+  <header class="hud">
+    <button class="brand" data-act="title" title="Menu"><svg class="ico"><use href="#i-fleur"/></svg><span>Kebec</span><small class="era">I · 1608–1663</small></button>
+    <div class="date" id="date"></div>
+    <div class="res" id="res"></div>
+    <div class="ctl" id="ctl"></div>
+    <div class="menu">
+      <span id="sndslot"></span><div class="seg small" role="group" aria-label="Langue / Language"><button data-act="lang" data-v="fr" id="lang-fr">FR</button><button data-act="lang" data-v="en" id="lang-en">EN</button></div>
+      <button class="ghost" data-act="help" id="helpbtn">?</button>
+    </div>
+  </header>
+  <main class="stage">
+    <section class="mapzone" id="mapzone">
+      <svg id="map" viewBox="0 0 990 576" role="img" aria-label="Carte de la Nouvelle-France"></svg>
+      <div class="maptools"><div class="seg small" role="group" id="viewseg"><button data-act="view" data-v="continent" id="v-cont"></button><button data-act="view" data-v="valley" id="v-val"></button></div><div class="zoombtns"><button data-act="zoom" data-v="in" aria-label="Zoom +">+</button><button data-act="zoom" data-v="out" aria-label="Zoom −">−</button></div></div>
+      <button class="histgauge" id="histgauge" data-act="tab" data-v="registre" hidden></button>
+      <div class="toasts" id="toasts" aria-live="polite"></div>
+      <button class="bigplay" id="bigplay" data-act="play" hidden></button>
+      <div class="ticker" id="ticker"></div>
+    </section>
+    <aside class="desk" id="desk">
+      <nav class="tabs" role="tablist" id="tabs"></nav>
+      <div class="tabbody" id="tabbody"></div>
+    </aside>
+  </main>
+</div>
+<div class="overlay" id="dispatch" hidden></div>
+<div class="overlay" id="ending" hidden></div>
+<div class="overlay" id="relation" hidden></div>
+<div class="overlay" id="help" hidden></div>
+<div class="titlescreen" id="title" hidden></div>
+
+<script src="js/i18n.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/frontage.js"></script>
+<script src="js/history.js"></script>
+<script src="js/state.js"></script>
+<script src="js/events/history-core.js"></script>
+<script src="js/relations.js"></script>
+<script src="js/events/history-more.js"></script>
+<script src="js/events/unplanned.js"></script>
+<script src="js/events/standing.js"></script>
+<script src="js/events/vignettes-arcs.js"></script>
+<script src="js/events/p1-more.js"></script>
+<script src="js/events/p1-extra.js"></script>
+<script src="js/events/index.js"></script>
+<script src="js/p2.js"></script>
+<script src="js/events/p2-events.js"></script>
+<script src="js/events/p2-consequences.js"></script>
+<script src="js/events/p2-more.js"></script>
+<script src="js/world.js"></script>
+<script src="js/review.js"></script>
+<script src="js/media.js"></script>
+<script src="js/classes.js"></script>
+<script src="js/polity.js"></script>
+<script src="js/p3.js"></script>
+<script src="js/events/p3-events.js"></script>
+<script src="js/events/p3-more.js"></script>
+<script src="js/events/p2-extra.js"></script>
+<script src="js/events/classes-events.js"></script>
+<script src="js/p4.js"></script>
+<script src="js/events/p4-events.js"></script>
+<script src="js/events/p4-more.js"></script>
+<script src="js/events/acadie-events.js"></script>
+<script src="js/p5.js"></script>
+<script src="js/events/p5-events.js"></script>
+<script src="js/events/p5-more.js"></script>
+<script src="js/events/polity-events.js"></script>
+<script src="js/story.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/terroir.js"></script>
+<script src="js/indig.js"></script>
+<script src="js/acadie.js"></script>
+<script src="js/settle.js"></script>
+<script src="js/territory.js"></script>
+<script src="js/map.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/ui2.js"></script>
+<script src="js/ui3.js"></script>
+<script src="js/ui4.js"></script>
+<script src="js/ui5.js"></script>
+<script src="js/intros.js"></script>
+<script src="js/credits.js"></script>
+<script src="js/input.js"></script>
+<script src="js/calibration.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
