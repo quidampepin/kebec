@@ -123,7 +123,7 @@ function tabRegistre(){
   let h=`<section><h4>${u('relations')}</h4>`;
   if(!S.chron||!S.chron.length)h+=`<p class="quiet">${u('noRel')}</p>`;
   else h+=S.chron.slice(0,12).map((c,i)=>`<article class="relation${i===0?' fresh':''}" data-act="openrel" data-v="${i}" tabindex="0" role="button"><div class="rh">${fr()?'Relation de ce qui s\'est passé en la Nouvelle-France en l\'année':'Relation of what took place in New France in the year'} <b>${c.y}</b></div><p>${L(c)}</p><span class="readmore">${fr()?'Lire la Relation':'Read the Relation'} →</span></article>`).join('');
-  const dv=S.divergences||[];h+=`</section><section><h4>${fr()?'Les bifurcations':'Where history forked'}</h4>${dv.length?dv.slice().reverse().map(d=>`<p class="fork"><b>${d.y}</b><span>${L(d.text)}</span></p>`).join(''):`<p class="quiet">${fr()?"Pour l'instant, l'histoire suit son cours. Quand vos choix rendront un événement historique improbable, il sera noté ici.":'So far, history follows its course. When your choices make a historical event unlikely, it will be noted here.'}</p>`}`;
+  const dv=S.divergences||[];h+=`</section><section><h4>${fr()?'Les bifurcations':'Where history forked'}</h4>${dv.length?dv.slice().reverse().map(d=>`<p class="fork"><b>${d.y}</b><span>${L(d.text)}${d.why&&d.why.length?`<small class="forkwhy">${fr()?'Pourquoi : ':'Why: '}${d.why.map(r=>L(r)).join(' ')}</small>`:''}</span></p>`).join(''):`<p class="quiet">${fr()?"Pour l'instant, l'histoire suit son cours. Quand vos choix rendront un événement historique improbable, il sera noté ici.":'So far, history follows its course. When your choices make a historical event unlikely, it will be noted here.'}</p>`}`;
   const WL=S.worldLog||[];h+=`</section><section><h4>${fr()?'Le monde':'The world'}</h4>${WL.length?WL.slice(0,30).map(w=>{const it=WORLD[w.i];return it?`<p class="fork world"><b>${it.y}</b><span><i>${L(WORLD_K[it.k])}</i> · <b>${L(it.t)}</b> — ${L(it.x)}</span></p>`:'';}).join(''):`<p class="quiet">${fr()?'Les nouvelles du monde arrivent avec les navires.':'News of the world arrives with the ships.'}</p>`}`;
   h+=`</section><section><h4>${u('journal')}</h4><div class="journal">${S.log.slice(0,40).map(e=>`<p class="${e.kind}"><b>${S.period>=2&&e.y>=1663?'':SEASONS[lang][e.se].slice(0,3)+'. '}${e.y}</b><span>${L(e.text)}</span></p>`).join('')}</div></section>`;
   return h;
@@ -131,15 +131,16 @@ function tabRegistre(){
 /* ---------- dispatch ---------- */
 /* histoire ou hypothèse : chaque affaire dit d'où elle vient */
 const ALT_EVENTS=new Set(['kirke1629b','etat1776','republique1838','paix1760','acadieReste1756']);
-function evKind(e){if(!e)return 'plaus';if(e.review)return 'review';if(e.elec)return 'elec';if(e.vote)return 'ref';if(ALT_EVENTS.has(e.id)||e.alt)return 'alt';if(e.conseq)return 'conseq';if(e.sys)return 'plaus';return 'hist';}
+function evKind(e){if(!e)return 'plaus';if(e.bif)return 'bif';if(e.review)return 'review';if(e.elec)return 'elec';if(e.vote)return 'ref';if(ALT_EVENTS.has(e.id)||e.alt)return 'alt';if(e.conseq)return 'conseq';if(e.sys)return 'plaus';return 'hist';}
 const KIND={hist:R(['Fait historique','Ceci est vraiment arrivé, à peu près à ce moment.'],['Historical event','This really happened, at about this time.']),
  alt:R(['Uchronie','Ceci n’est pas arrivé : vos choix ont fait bifurquer l’histoire.'],['Alternate history','This did not happen: your choices have forked history.']),
  conseq:R(['Hypothèse','Une suite plausible de vos choix, pas un fait attesté.'],['Hypothetical','A plausible result of your choices, not a recorded fact.']),
  plaus:R(['Vraisemblable','Typique de l’époque, mais inventé pour le jeu.'],['Plausible','Typical of the era, but invented for the game.']),
  ref:R(['Référendum','Le peuple décide de son avenir : le résultat dépend de l’appui à la souveraineté, de la question posée et de la campagne.'],['Referendum','The people decide their future: the result depends on support for sovereignty, the question asked and the campaign.']),
- elec:R(['Élection','Le peuple tranche, groupe par groupe : chacun juge ce que votre bilan lui a donné ou enlevé ; la campagne compte, le vent de l’époque un peu.'],['Election','The people decide, group by group: each judges what your record gave or took from it; the campaign matters, the mood of the times a little.']),
+ bif:R(['L’histoire bifurque','Ceci est arrivé dans l’histoire réelle, mais pas dans votre partie : voici pourquoi.'],['History forks','This happened in real history, but not in your game: here is why.']),
+ elec:R(['Élection','Le peuple tranche, groupe par groupe : chacun juge ce que votre bilan lui a donné ou enlevé. Le jeu vous dit qui gagne, et pourquoi.'],['Election','The people decide, group by group: each judges what your record gave or took from it. The game tells you who wins, and why.']),
  review:R(['Le cap','Vos orientations pour les années qui viennent.'],['The course','Your direction for the years ahead.'])};
-function kindTag(e){const k=evKind(e),t=L(KIND[k]);return `<span class="tag k-${k}" title="${t[1]}">${ico(k==='hist'?'book':k==='alt'?'fleur':k==='review'||k==='elec'||k==='ref'?'flag':'feather')}${t[0]}</span>`;}
+function kindTag(e){const k=evKind(e),t=L(KIND[k]);return `<span class="tag k-${k}" title="${t[1]}">${ico(k==='hist'?'book':k==='alt'||k==='bif'?'fleur':k==='review'||k==='elec'||k==='ref'?'flag':'feather')}${t[0]}</span>`;}
 function kindNote(e){const k=evKind(e);return k==='review'||k==='elec'||k==='ref'?'':`<p class="knote k-${k}">${L(KIND[k])[1]}</p>`;}
 function forkCount(){return (S.divergences||[]).length;}
 function histGap(){if(typeof histPop!=='function'||!S.pop)return 0;const h=histPop(S.year+(S.period===1?S.season/4:0));return h?S.pop/h-1:0;}
@@ -179,7 +180,7 @@ function renderDispatch(){
     const pl=PLACES[e.place];const where=pl&&pl.name?L(pl.name):'';const ctx=CONTEXT[id];
     const k=evImg(id,e);
     h=`<div class="letter">${plate(k)}<div class="body"><div class="kick">${kindTag(e)} · ${S.period>=2?'':SEASONS[lang][S.season]+' '}${S.year}${where?' · '+where:''}${S.pending.length>1?` · 1/${S.pending.length}`:''}</div><h2>${L(e.title)}</h2>${kindNote(e)}
-     <p class="story drop">${S4(L(txt))}</p>${e.because?`<aside class="because">${ico('fleur')}<span><b>${fr()?'Pourquoi maintenant':'Why now'} :</b> ${L(e.because(S))}</span></aside>`:''}${ctx?`<aside class="context"><b>${u('context')}</b> ${L(ctx)}</aside>`:''}
+     <p class="story drop">${e.elec?L(txt):S4(L(txt))}</p>${e.because?`<aside class="because">${ico('fleur')}<span><b>${fr()?'Pourquoi maintenant':'Why now'} :</b> ${L(e.because(S))}</span></aside>`:''}${e.whyNot?`<aside class="whynot${e.elec?' elec':''}"><b>${e.whyHead?L(e.whyHead):fr()?'Pourquoi pas ici ?':'Why not here?'}</b><ul>${e.whyNot.map(r=>`<li>${L(r)}</li>`).join('')}</ul>${e.pct==null?'':`<p class="quiet">${fr()?`Chance que l’événement se produise dans votre partie : ${e.pct} %. Le reste de l’histoire continue, mais sans lui.`:`Chance of the event happening in your game: ${e.pct}%. The rest of history goes on, without it.`}</p>`}</aside>`:''}${ctx?`<aside class="context"><b>${u('context')}</b> ${L(ctx)}</aside>`:''}
      <div class="choices">${chs.map((c,i)=>{const pv=previewChoice(e,i);return `<button class="choice" data-act="choose" data-id="${id}" data-i="${i}"><span class="cl">${S4(L(c.label))}${c.hist?`<em class="seal" title="${u('histChoice')}">${ico('fleur')}${u('histChoice')}</em>`:''}</span>${c.desc?`<small>${L(c.desc)}</small>`:''}<span class="chips">${(e.elec||e.vote?[]:pv.eff).map(chipHTML).join('')}${pv.uncertain?`<span class="chip unc">? ${u('uncertain')}</span>`:''}</span></button>`;}).join('')}</div>
      <div class="acts left"><button class="linkbtn" data-act="minimize">${u('seeMap')}</button></div></div></div>`;
   }
@@ -220,7 +221,7 @@ function renderTitle(){
      <div class="pbody"><div class="pnum">${F?'Période':'Period'} ${p.n} · ${p.d}</div><h3>${L(p.name)}</h3><div class="pwho">${F?'Vous êtes':'You are'} : ${L(p.who)}</div><p>${L(p.blurb)}</p>
      ${p.open?`<div class="pacts">${pacts(p)}</div>`:`<div class="soon">${F?'En construction':'In the works'}</div>`}</div></article>`;
   el.innerHTML=`<div class="tbg" style="background-image:url('${imgSrc('carte1632')}')"></div><div class="tcard wide">
-   <div class="tk">${F?"Et si l'histoire avait tourné autrement ?":'What if history had turned out differently?'}</div><h1>Kebec</h1>
+   <div class="tk">${F?"Et si on pouvait réécrire l'histoire":'What if we could rewrite history'}</div><h1>Kebec</h1>
    <p class="tsub">${F?"Quatre siècles de l'histoire des Canadiens français, de 1608 à 2000. Le monde suit son cours ; vous décidez comment ce peuple y répond, et ce qu'il devient.":'Four centuries of French-Canadian history, from 1608 to 2000. The world follows its course; you decide how this people responds, and what it becomes.'}</p>
    <div class="periods">${PERIODS.map(card).join('')}</div>
    <div class="fullrun"><b>${F?'Partie complète, 1608–2000':'Full game, 1608–2000'}</b> · ${F?"les périodes s'enchaîneront, chacune héritant de l'état laissé par la précédente. On pourra aussi commencer n'importe quelle période dans son état historique réel.":'periods will follow one another, each inheriting the state left by the last. You will also be able to start any period in its real historical state.'}</div>

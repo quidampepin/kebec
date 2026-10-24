@@ -29,5 +29,5 @@ const ROUTINE={
    ]};}
 };
 function expectedFurs(s){let f=(s.rAlg*.25+(s.wenFallen?0:s.rWen*.45*s.wenStr/100))*.65;f*={traite:1.4,equilibre:1,colonie:.8}[s.orient.eco];f*=1+(s.alloc.traite||0)/1500;if(s.places.troisRivieres)f*=1.1;if(s.places.villeMarie)f*=1.1;f*=1-s.haud/250;return f*s.mods.fur;}
-function getEv(id){if(id==='R:rev')return reviewEvent(S);if(id==='E:elec')return electionEvent(S);if(id==='E:elec5')return electionEvent5(S);if(id==='E:elec3')return electionEvent3(S);if(id.startsWith('P:'))return polEvent(S,id);if(id==='V:ref')return refEvent5(S);if(id==='V:nego')return negoEvent5(S);if(id.startsWith('R:'))return ROUTINE[+id.slice(2)](S);const e=EV[id];if(e&&typeof e.title==='function')return Object.assign({},e,{title:e.title(S)});return e;}
+function getEv(id){if(id==='R:rev')return reviewEvent(S);if(id==='E:elec')return electionEvent(S);if(id==='E:elec5')return electionEvent5(S);if(id==='E:elec3')return electionEvent3(S);if(id.startsWith('P:'))return polEvent(S,id);if(id.startsWith('D:'))return bifEvent(S,id);if(id==='V:ref')return refEvent5(S);if(id==='V:nego')return negoEvent5(S);if(id.startsWith('R:'))return ROUTINE[+id.slice(2)](S);const e=EV[id];if(e&&typeof e.title==='function')return Object.assign({},e,{title:e.title(S)});return e;}
 

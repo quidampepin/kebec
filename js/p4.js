@@ -228,7 +228,7 @@ function processYear4(s){
   {const tgt=clamp(pw(URB4,y)+(s.eco-55)*.0012+{agricole:-.01,ressources:.015,national:0}[O.eco4]-(s.colT-62)*.0008,.1,.9);s.urb+=(tgt-s.urb)*(1-Math.pow(.8,dt));}
   /* naissances, décès, départs */
   {const fp=s.pop-s.ang,nz=1+(Math.random()-.5)*.06;
-   const br=1.05*pw(BR4,y)*(1+(s.traits.ferveur-75)*.002)*(1-(s.urb-pw(URB4,y))*.6)*(F.allocations?1.03:1);
+   const br=1.035*pw(BR4,y)*(1+(s.traits.ferveur-75)*.002)*(1-(s.urb-pw(URB4,y))*.6)*(F.allocations?1.03:1);
    const ep=s.mods.epid||0;s.mods.epid=0;
    const dr=pw(DR4,y)*(1-(ef('sante')-.7)*.07)*(F.hygiene?.96:1)*(F.assistance?.98:1)*(F.assuranceHosp?.97:1)+(war&&war.id==='gg1'?.0007:0)+(war&&war.id==='gg2'?.0004:0)+ep;
    const births=Math.round(fp*br*nz*dt),deaths=Math.round(fp*dr*dt);
@@ -329,38 +329,26 @@ function endingFor4(s){const fr=1-s.ang/s.pop;
 
 /* ---------- les élections : le peuple juge la législature ---------- */
 function electionEvent(s){
-  const p=premier4(s),o=opposition4(s),side=govSide4(s),sup=Math.round(s.support);const F=fr();
   const hw=HISTWIN4[s.year],hp=hw?leader4(Object.assign({},s,{year:s.year+1}),hw):null;
-  const pr=polVote(s,parties4(s));const lead=(pr.v[side]||0)-(pr.v[side==='bleu'?'rouge':'bleu']||0);
-  const pollTxt={fr:`On évalue les forces : ${cap1(partyLabel4(s,'bleu').fr)} ${Math.round((pr.v.bleu||0)*100)} %, ${partyLabel4(s,'rouge').fr} ${Math.round((pr.v.rouge||0)*100)} %.`,en:`Estimated strength: ${cap1(partyLabel4(s,'bleu').en)} ${Math.round((pr.v.bleu||0)*100)}%, ${partyLabel4(s,'rouge').en} ${Math.round((pr.v.rouge||0)*100)}%.`};
-  const mood=lead>.08?R("Le vent est favorable.","The wind is favourable."):lead>-.03?R("La lutte sera serrée.","It will be a close fight."):R("L'opposition sent la victoire.","The opposition smells victory.");
-  /* l'issue : votre appui, la campagne, l'usure du pouvoir, et le « vent de l'époque » (ce qui a fait gagner tel camp dans l'histoire) */
-  const tot=y=>y<1912?65:y<1931?81:y<1944?90:92;
-  const res=(s2,bonus,gb)=>{const g0=govSide4(s2);const tide={};if(hw)tide[hw]=3;const bon=Object.assign({},tide);bon[g0]=(bon[g0]||0)+bonus*.5;
-    /* être du même camp qu'Ottawa coûte cher quand Ottawa vient de blesser le Québec : c'est dans les affinités des groupes (polity.js) */
-    const r=polVote(s2,parties4(s2),{bonus:bon,gbonus:gb||{},noise:3});s2.lastVote=r;r.y=s2.year;const T=tot(s2.year);
-    const other=g0==='bleu'?'rouge':'bleu';const sg=Math.round((r.seats[g0]||0)*T),so=T-sg;s2.lastElec=s2.year;const win=sg>so;const out=[];
-    const line=`${cap1(L(partyLabel4(s2,'bleu')))} ${Math.round((r.v.bleu||0)*100)} % (${g0==='bleu'?sg:so}) · ${cap1(L(partyLabel4(s2,'rouge')))} ${Math.round((r.v.rouge||0)*100)} % (${g0==='rouge'?sg:so})`;
-    if(win){s2.mandat=clamp(.8+sg/T*.45,.8,1.2);
-      out.push(F?`${premier4(s2).name} est reporté au pouvoir : ${sg} sièges sur ${T}. ${sg>T*.7?'Un raz-de-marée : les mains sont libres.':'Une majorité suffisante pour gouverner.'} ${line}.`:`${premier4(s2).name} is returned to power: ${sg} of ${T} seats. ${sg>T*.7?'A landslide: hands are free.':'A working majority.'} ${line}.`);}
-    else{const ns=other;const loser=premier4(s2).name;const tx=changeGov4(s2,ns);const np=premier4(s2);
-      out.push(F?`Défaite : ${loser} n'obtient que ${sg} sièges sur ${T}. ${line}. ${np.name} (${np.party.fr}) forme le gouvernement. Vous restez la volonté politique de la province, mais c'est désormais par lui qu'elle passe : l'Église, Ottawa et le capital le jugent à neuf.`:`Defeat: ${loser} wins only ${sg} of ${T} seats. ${line}. ${np.name} (${np.party.en}) forms the government. You remain the province's political will, but it now passes through him: the Church, Ottawa and capital judge him anew.`);}
-    out.push(polVoteStory(s2,r));
-    /* écart avec l'histoire */
-    if(hw&&govSide4(s2)!==hw&&s2===S){S.divergences=S.divergences||[];S.divergences.push({y:s2.year,id:'elec'+s2.year,title:R(`Les élections de ${s2.year}`,`The ${s2.year} election`),
-      text:{fr:`Élections de ${s2.year} : ${premier4(s2).name} gouverne. Dans l'histoire, c'est ${hp?hp.name:'l’autre camp'} qui l'emporte.`,en:`${s2.year} election: ${premier4(s2).name} governs. In history, ${hp?hp.name:'the other side'} won.`}});}
-    return {fr:out.join(' '),en:out.join(' ')};};
-  const fitNat=side==='bleu'&&s.year>=1935||side==='rouge'&&s.year>=1885&&s.year<1892;
-  const fitOrdre=side==='bleu'?3:-2;
-  const histLine=hw?(F?` Dans l'histoire, ${hp.name} (${hw==='bleu'?'bleu':'rouge'}) gagne cette élection.`:` In history, ${hp.name} (${hw==='bleu'?'Conservative/UN':'Liberal'}) wins this election.`):'';
-  return {id:'E:elec',routine:true,elec:true,place:'quebec',title:R(`Les élections de ${s.year}`,`The ${s.year} election`),
-   text:{fr:`La législature tire à sa fin. ${p.name} (${p.party.fr}) sollicite un nouveau mandat contre ${o.name} (${o.party.fr}). ${pollTxt.fr} ${mood.fr} Si vous perdez, c'est ${o.name} qui gouvernera, avec ses alliés et ses ennemis. Sur quoi faire campagne ?${histLine}`,
-         en:`The legislature is ending. ${p.name} (${p.party.en}) seeks a new mandate against ${o.name} (${o.party.en}). ${pollTxt.en} ${mood.en} If you lose, ${o.name} will govern, with his own allies and enemies. What should the campaign be about?${histLine}`},
-   choices:[
-    {label:R('Le bilan : routes, ponts, écoles de rang','The record: roads, bridges, country schools'),desc:R('Parle aux campagnes et aux villes de compagnie.','Speaks to the countryside and the company towns.'),fx:s2=>{const g=govSide4(s2);return res(s2,2+Math.min(3,Math.max(0,(s2.eco-45)*.1)),{habitants:{[g]:2},ouvriers:{[g]:1}});}},
-    {label:R('Des promesses dans chaque comté (le patronage)','Promises in every riding (patronage)'),fx:s2=>{s2.treasury=Math.round(s2.treasury*.85);s2.flags.patronage=(s2.flags.patronage||0)+1;const g=govSide4(s2);return res(s2,5-Math.min(4,(s2.flags.patronage-1)*1.5),{habitants:{[g]:2},professions:{[g]:-1}});}},
-    {label:R('La nation : nos droits face à Ottawa','The nation: our rights against Ottawa'),desc:R('Mobilise la petite bourgeoisie et le clergé ; inquiète les anglophones et le capital.','Mobilizes the petty bourgeoisie and the clergy; worries anglophones and capital.'),fx:s2=>{s2.patri+=4;s2.off.gov-=8;const g=govSide4(s2);return res(s2,(fitNat?2:0),{professions:{[g]:5},clerge:{[g]:2},habitants:{[g]:1},anglos:{[g]:-5},capital:{[g]:-4}});}},
-    {label:R("L'ordre, la religion, la famille","Order, religion, family"),desc:R('Le clergé et les campagnes applaudissent ; les ouvriers et les libéraux décrochent.','The clergy and the countryside applaud; workers and liberals drift away.'),fx:s2=>{s2.off.eve+=8;traitAdd(s2,'ferveur',1);const g=govSide4(s2);return res(s2,fitOrdre*.5,{clerge:{[g]:6},habitants:{[g]:2},ouvriers:{[g]:-2},professions:{[g]:-1}});}}]};
+  const T=s.year<1912?65:s.year<1931?81:s.year<1944?90:92;
+  const fedName=y=>L(partyLabel4(s,fedSide4(y)));
+  return polElection(s,{id:'E:elec',seats:T,hw,histName:hp?hp.name:'',
+    parties:parties4,label:k=>partyLabel4(s,k),gov:govSide4(s),
+    headline:(s2,c)=>{const g0=govSide4(s2),w=c.winner;const wl=leader4(Object.assign({},s2,{year:s2.year+1}),w);
+      return w===g0?R(`${premier4(s2).name} est reporté au pouvoir avec ${c.seatN[w]} sièges sur ${T}. ${c.seatN[w]>T*.7?'Un raz-de-marée : les mains sont libres.':'Une majorité suffisante pour gouverner.'}`,`${premier4(s2).name} is returned to power with ${c.seatN[w]} of ${T} seats. ${c.seatN[w]>T*.7?'A landslide: hands are free.':'A working majority.'}`)
+        :R(`Défaite ${deN(premier4(s2).name)}. ${wl.name} (${L(partyLabel4(s2,w))}) forme le gouvernement avec ${c.seatN[w]} sièges sur ${T}. Vous restez la volonté politique de la province, mais elle passe désormais par lui.`,`Defeat for ${premier4(s2).name}. ${wl.name} (${L(partyLabel4(s2,w))}) forms the government with ${c.seatN[w]} of ${T} seats. You remain the province's political will, but it now passes through him.`);},
+    extra:(s2,r)=>{const o=[],F2=s2.flags,y=s2.year;
+      const pen=(f,Y,yrs,fr_,en_)=>{if(f&&y-Y<=yrs)o.push(R(`${fr_} Le parti allié d'Ottawa (${fedName(Y)}) le paie dans les comtés canadiens-français.`,`${en_} The party allied with Ottawa (${fedName(Y)}) pays for it in the French-Canadian ridings.`));};
+      pen(F2.riel,1885,8,"La pendaison de Riel n'est pas pardonnée.","Riel's hanging is not forgiven.");
+      pen(F2.conscription,1917,22,"La conscription de 1917 a laissé une plaie ouverte.","The 1917 conscription left an open wound.");
+      pen(F2.conscription44,1944,8,"La conscription de 1944 a trahi la promesse de King.","The 1944 conscription broke King's promise.");
+      if(y>=1896&&y<1911)o.push(R("Laurier, premier Canadien français à Ottawa, attire le vote vers les libéraux.","Laurier, the first French Canadian in Ottawa, draws votes to the Liberals."));
+      return o;},
+    apply:(s2,c)=>{const g0=govSide4(s2),w=c.winner;s2.lastElec=s2.year;
+      if(w===g0)s2.mandat=clamp(.8+c.seatN[w]/T*.45,.8,1.2);else changeGov4(s2,w);
+      if(hw&&govSide4(s2)!==hw&&s2===S){S.divergences=S.divergences||[];S.divergences.push({y:s2.year,id:'elec'+s2.year,title:R(`Les élections de ${s2.year}`,`The ${s2.year} election`),
+        text:{fr:`Élections de ${s2.year} : ${premier4(s2).name} gouverne. Dans l'histoire, c'est ${hp?hp.name:'l’autre camp'} qui l'emporte.`,en:`${s2.year} election: ${premier4(s2).name} governs. In history, ${hp?hp.name:'the other side'} won.`},why:c.why});}
+      return R('','');}});
 }
 
 /* ---------- la presse : le résumé de l'époque change de forme ---------- */

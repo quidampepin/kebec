@@ -168,7 +168,7 @@ function processYear3(s){
    /* naissances, décès, départs */
    const nz=1+(Math.random()-.5)*.08;const births=Math.round(fp*.0545*(1-press*.5)*nz*dt);
    const ep=s.mods.epid||0;s.mods.epid=0;
-   const deaths=Math.round(fp*(.0232+(s.year<1765?.024:s.year<1784?.005:s.year>=1833&&s.year<=1838?.005:0)+(war&&war.id!=='rebellions'?.002:0)+ep)*dt);
+   const deaths=Math.round(fp*(.0232+(s.year<1765?.031:s.year<1784?.005:s.year>=1833&&s.year<=1838?.005:0)+(war&&war.id!=='rebellions'?.002:0)+ep)*dt);
    const em=Math.round(fp*press*.04*usPull3(s.year)*(O.eco3==='bois'?.75:1)*(s.flags.rapatriement?.85:1)*dt);
    s.emig+=em;ys.emig+=em;ys.births+=births;
    /* les anglophones */
@@ -287,26 +287,13 @@ function seats3(y){return y<1830?50:y<1841?88:y<1854?42:65;}
 function parties3(s){const y=s.year,line=LINE3[s.orient.cour]||50;
   const L=[{id:'canadien',stance:line,gov:false},{id:'anglais',stance:5,gov:false}];
   if(y>=1848)L.push({id:'rouges',stance:88,gov:false});return L;}
-function electionEvent3(s){const F=fr(),y=s.year,T=seats3(y),un=!!s.flags.unionAct;
-  const pr=polVote(s,parties3(s));const pc=Math.round((pr.v.canadien||0)*100);
-  const res=(s2,gb)=>{const r=polVote(s2,parties3(s2),{gbonus:gb||{},noise:4});s2.lastVote=r;r.y=s2.year;s2.lastElec3=s2.year;
-    const n={};let left=T;const ks=Object.keys(r.seats).sort((a,b)=>r.seats[b]-r.seats[a]);ks.forEach((k,i)=>{n[k]=i===ks.length-1?left:Math.round(r.seats[k]*T);left-=n[k];});
-    s2.pc3=(n.canadien||0)/T;const out=[];
-    const nm={canadien:un?R('réformistes canadiens','Canadien reformers'):R('Parti canadien','Parti canadien'),anglais:un?R('tories','Tories'):R('parti des bureaucrates','bureaucrats’ party'),rouges:R('rouges','Rouges')};
-    out.push(ks.map(k=>`${L(nm[k])} ${n[k]}`).join(' · ')+(F?` (sur ${T} sièges${un?' du Canada-Est':''}).`:` (of ${T} seats${un?' in Canada East':''}).`));
-    if(s2.pc3>=.6)out.push(F?"La Chambre est canadienne : elle votera les subsides à ses conditions.":"The House is Canadien: it will vote supply on its own terms.");
-    else if(s2.pc3>=.45)out.push(F?"Une Chambre divisée : chaque vote se négocie.":"A divided House: every vote must be bargained for.");
-    else out.push(F?"Les Canadiens ont perdu la Chambre : le parti anglais et les modérés font la loi.":"The Canadiens have lost the House: the English party and the moderates make the law.");
-    if((n.rouges||0)>T*.15)out.push(F?"Les rouges de Papineau et de l'Institut canadien vous débordent sur la gauche.":"Papineau's Rouges and the Institut canadien outflank you on the left.");
-    out.push(polVoteStory(s2,r));return {fr:out.join(' '),en:out.join(' ')};};
-  const ch=[
-   {label:R("Les griefs : la Chambre doit contrôler les subsides","Grievances: the House must control supply"),desc:R("Mobilise les professions et les habitants ; inquiète le clergé, les seigneurs et le Château.","Mobilizes the professions and the habitants; worries the clergy, the seigneurs and the Château."),
-    fx:s2=>{s2.compagnie-=4;return res(s2,{professions:{canadien:5},habitants:{canadien:3},clerge:{canadien:-3},seigneurs:{canadien:-3}});}},
-   {label:R("La modération : des réformes, avec le gouverneur","Moderation: reforms, with the Governor"),desc:R("Rassure le clergé et les seigneurs ; les jeunes avocats s'impatientent.","Reassures the clergy and the seigneurs; the young lawyers grow impatient.") ,
-    fx:s2=>{s2.compagnie+=2;return res(s2,{clerge:{canadien:4},seigneurs:{canadien:4},professions:{canadien:-3,rouges:2}});}},
-   {label:R("Les places et les faveurs du Château","Offices and favours from the Château"),desc:R("Le patronage achète des comtés, mais déconsidère le parti.","Patronage buys ridings, but discredits the party."),
-    fx:s2=>{s2.treasury=Math.round(s2.treasury*.85);s2.compagnie+=5;return res(s2,{habitants:{canadien:2},seigneurs:{canadien:3},professions:{canadien:-4,rouges:3}});}}];
-  const hist=y<1810?1:y<1841?0:1;ch[hist].hist=true;
-  return {id:'E:elec3',routine:true,elec:true,place:'quebec',title:R(`Les élections de ${y}`,`The ${y} election`),
-   text:{fr:`${un?"Élections au Parlement du Canada-Uni : le Canada-Est élit la moitié des députés.":"Élections à la Chambre d'assemblée du Bas-Canada."} On estime que ${pc} % des électeurs voteront pour ${un?'les réformistes canadiens':'le Parti canadien'}. Votre ligne compte : trop prudente, elle perd les professions ; trop radicale, elle effraie le clergé et les seigneurs. Sur quoi faire campagne ?`,
-         en:`${un?"Elections to the Parliament of the Province of Canada: Canada East elects half the members.":"Elections to the House of Assembly of Lower Canada."} An estimated ${pc}% of voters will back ${un?'the Canadien reformers':'the Parti canadien'}. Your line matters: too cautious and you lose the professions; too radical and you frighten the clergy and the seigneurs. What should the campaign be about?`},choices:ch};}
+function electionEvent3(s){const y=s.year,T=seats3(y),un=!!s.flags.unionAct;
+  const nm={canadien:un?R('réformistes canadiens','Canadien reformers'):R('Parti canadien','Parti canadien'),anglais:un?R('tories','Tories'):R('parti des bureaucrates','bureaucrats’ party'),rouges:R('rouges','Rouges')};
+  return polElection(s,{id:'E:elec3',seats:T,hw:null,parties:parties3,label:k=>nm[k],gov:null,
+    headline:(s2,c)=>{const pcs=(c.seatN.canadien||0)/T;const intro=un?R("Élections au Parlement du Canada-Uni : le Canada-Est élit la moitié des députés.","Elections to the Parliament of the Province of Canada: Canada East elects half the members."):R("Élections à la Chambre d'assemblée du Bas-Canada.","Elections to the House of Assembly of Lower Canada.");
+      const v=pcs>=.6?R("La Chambre est canadienne : elle votera les subsides à ses conditions.","The House is Canadien: it will vote supply on its own terms."):pcs>=.45?R("Une Chambre divisée : chaque vote se négocie.","A divided House: every vote must be bargained for."):R("Les Canadiens ont perdu la Chambre : le parti anglais et les modérés font la loi.","The Canadiens have lost the House: the English party and the moderates make the law.");
+      return R(`${intro.fr} ${v.fr}`,`${intro.en} ${v.en}`);},
+    extra:(s2,r)=>{const o=[];const line=LINE3[s2.orient.cour]||50,gap=s2.gap3||0;
+      o.push(gap>12?R("Votre ligne est plus prudente que le peuple : les plus ardents cherchent d'autres chefs.","Your line is more cautious than the people: the most ardent look for other leaders."):gap<-12?R("Votre ligne va plus loin que le peuple : le clergé et les modérés hésitent à vous suivre.","Your line goes further than the people: the clergy and the moderates hesitate to follow you."):R("Votre ligne est en phase avec le peuple canadien.","Your line is in step with the Canadien people."));
+      if((r.v.rouges||0)>.15)o.push(R("Les rouges de Papineau et de l'Institut canadien vous débordent sur la gauche.","Papineau's Rouges and the Institut canadien outflank you on the left."));return o;},
+    apply:(s2,c)=>{s2.lastElec3=s2.year;s2.pc3=(c.seatN.canadien||0)/T;return R('','');}});}

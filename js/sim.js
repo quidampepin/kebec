@@ -183,6 +183,7 @@ function choose(id,i){
   S.outcome={id,title:e.title,label:ch.label,res,eff:diffSnap(before,snapFull(S)),wasHist:!!ch.hist,histLabel:hi>=0&&hi!==i?chs[hi].label:null,histRes,img:evImg(id,e),kind:evKind(e),grp:gmap&&typeof polGroups==='function'?polGroups(S).filter(g=>gmap[g.id]).map(g=>({n:g.name,v:gmap[g.id]})):null};
   if((S.period===4&&S.side4!==side0)||(S.period===5&&S.party5!==side0))S.outcome.eff=S.outcome.eff.filter(f=>f.k!=='support');
   if(hi>=0&&hi!==i&&!e.review&&evKind(e)==='hist'){S.divergences=S.divergences||[];const tt=typeof e.title==='function'?e.title(S):e.title;S.divergences.push({y:S.year,id:'c:'+id,choice:true,title:tt,text:{fr:`${tt.fr} : vous avez choisi « ${ch.label.fr} ». Dans l'histoire : « ${chs[hi].label.fr} ».`,en:`${tt.en}: you chose “${ch.label.en}”. In history: “${chs[hi].label.en}”.`}});}
+  if(e.bif||e.info){S.outcome=null;S.bifs&&delete S.bifs[id.slice(2)];if(!window.CALIB){save();render();}return;}
   logIt(S,{fr:`${e.title.fr} — ${ch.label.fr}.`,en:`${e.title.en} — ${ch.label.en}.`},'decision');
   if(S.pop<=3&&!S.ending)S.ending='abandon';
   if(!window.CALIB){save();render();}

@@ -33,8 +33,12 @@ function diverge(s,e,p){
   const txt=DIVERGE[e.id]||{fr:`Dans l'histoire, « ${e.title.fr} » a eu lieu à ce moment. Ici, les circonstances ont changé : cela n'arrive pas.`,en:`In history, “${e.title.en}” happened at this point. Here, circumstances have changed: it does not happen.`};
   if(e.id==='huronia1649'){s.flags.huroniaHeld=true;s.wenStr=Math.min(100,s.wenStr+5);}
   if(e.id==='jogues1646'||e.id==='peaceEnd1655')s.flags.peace=true;
-  s.divergences=s.divergences||[];s.divergences.push({y:s.year,id:e.id,title:typeof e.title==='function'?e.title(s):e.title,text:txt,p:Math.round(p*100)});
-  s.yearOut=s.yearOut||[];s.yearOut.push({t:typeof e.title==='function'?e.title(s):e.title,r:txt});
+  const tt=typeof e.title==='function'?e.title(s):e.title;
+  /* ce qui, dans cette partie, a rendu l'événement improbable */
+  let why=[];try{if(window.WHY_NOT&&WHY_NOT[e.id])why=WHY_NOT[e.id](s)||[];}catch(err){why=[];}
+  s.divergences=s.divergences||[];s.divergences.push({y:s.year,id:e.id,title:tt,text:txt,p:Math.round(p*100),why});
+  s.yearOut=s.yearOut||[];s.yearOut.push({t:tt,r:txt});
   logIt(s,txt,'good');
-  if(s===S&&!window.CALIB)toast(txt,'diverge');
+  /* un grand encadré plutôt qu'une simple notification */
+  if(s===S&&!window.CALIB){s.bifs=s.bifs||{};s.bifs[e.id]={id:e.id,title:tt,text:txt,why,p:Math.round(p*100)};s.pending.push('D:'+e.id);}
 }

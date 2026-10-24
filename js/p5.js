@@ -124,7 +124,7 @@ function p5Defaults(s){
 /* départ historique : juin 1960, « C'est le temps que ça change » */
 function newState5(){
   const s=attachRel(newState());
-  Object.assign(s,{year:1960,pop:5200000,ang:690000,allo:280000,women:1000000,cleared:0,food:0,treasury:0,furs:0,defense:20,compagnie:50,church:72,missions:30,autonomy:42,
+  Object.assign(s,{year:1960,pop:5127000,ang:680000,allo:276000,women:1000000,cleared:0,food:0,treasury:0,furs:0,defense:20,compagnie:50,church:72,missions:30,autonomy:42,
     eco:48,edu:30,patri:30,land:0,wenFallen:true,wenStr:12,annedda:true,hospital:true,firstWinter:false,foreign:55,urb:.74,capital:.8});
   s.rel={innu:15,alg:10,agnier:-5,abenaki:20,wen:20,cri:25,inuit:25};
   s.places={quebec:true,tadoussac:true,troisRivieres:true,villeMarie:true,orleans:true,beauport:true,lauzon:true,beaupre:true,kamouraska:true,batiscan:true,sorel:true,laprairie:true,boucherville:true,kahnawake:true,lorette:true,
@@ -132,7 +132,7 @@ function newState5(){
     stJerome:true,montLaurier:true,roberval:true,shawinigan:true,thetford:true,hull:true,temiscamingue:true,amos:true,rouyn:true,arvida:true,septIles:true,matapedia:true,
     baieComeau:true,schefferville:true,chibougamau:true,laval5:true,longueuil:true};
   s.flags={conquest:true,grandePaix:true,unionAct:true,responsable:true,finSeigneurie:true,chemins:true,confed:true,hydroQc:true,suffrage:true,ecoleObligatoire:true,ministereAboli:true,impotProv:true,fleurdelise:true};s.fired={};s.raided={};
-  s.popHist=[[1960,5200000]];
+  s.popHist=[[1960,5127000]];
   s.traits={ferveur:78,alliance:25,aventure:35,roi:52,entraide:55,ouverture:38};
   s.regions={laurentides:1868,saguenay:1871,matapedia:1881,temiscamingue:1886,abitibi:1912};
   s.log=[];logIt(s,R("22 juin 1960 : les libéraux de Jean Lesage battent l'Union nationale. « C'est le temps que ça change. »","22 June 1960: Jean Lesage's Liberals defeat the Union nationale. 'It's time for a change.'"),'good');
@@ -213,7 +213,7 @@ function processYear5(s){
   {const tgt=clamp({libre:.22,incitation:.33,charte:.55}[O.langue5]+ef('langue')*.035+(F.selectionQc?.04:0)+(F.loi101?.04:0)-(F.loi178Annulee?.02:0),.1,.85);s.fraFrac+=(tgt-s.fraFrac)*(1-Math.pow(.9,dt));}
   /* naissances, décès, migrations, transferts linguistiques */
   {const nz=1+(Math.random()-.5)*.04,fran=s.pop-s.ang-s.allo;
-   const cbr=pw(CBR5,y)*(F.allocNaiss?1.04:1)*(F.garderies?1.02:1)*(1+(s.church-pw(CHURCH5,y))*.002)*nz,cdr=pw(CDR5,y)*(1-(ef('sante')-.7)*.04)*(F.assuranceMaladie?.98:1);
+   const cbr=pw(CBR5,y)*.985*(F.allocNaiss?1.04:1)*(F.garderies?1.02:1)*(1+(s.church-pw(CHURCH5,y))*.002)*nz,cdr=pw(CDR5,y)*(1-(ef('sante')-.7)*.04)*(F.assuranceMaladie?.98:1);
    const bF=Math.round(fran*cbr*dt),bA=Math.round(s.ang*cbr*.75*dt),bO=Math.round(s.allo*cbr*1.15*dt);
    const dF=Math.round(fran*cdr*dt),dA=Math.round(s.ang*cdr*1.05*dt),dO=Math.round(s.allo*cdr*.8*dt);
    /* l'immigration internationale */
@@ -321,40 +321,20 @@ function endingFor5(s){const f=frShare5(s),F=s.flags;
 
 /* ---------- les élections ---------- */
 function electionEvent5(s){
-  const p=premier5(s),rv=rival5(s),o=opposition5(s),gov=govParty5(s),sup=Math.round(s.support);const F=fr();
   const hw=HISTWIN5[s.year];const hp=hw?leader5({year:s.year+1},hw):null;
-  const pr=polVote(s,parties5(s));const pk=Object.keys(pr.v).sort((a,b)=>pr.v[b]-pr.v[a]);
-  const pollTxt={fr:'Sondages : '+pk.map(k=>`${polPartyLab(s,k).fr} ${Math.round(pr.v[k]*100)} %`).join(', ')+'.',en:'Polls: '+pk.map(k=>`${polPartyLab(s,k).en} ${Math.round(pr.v[k]*100)}%`).join(', ')+'.'};
-  const lead=(pr.v[gov]||0)-Math.max(...pk.filter(k=>k!==gov).map(k=>pr.v[k]));
-  const mood=lead>.08?R("Les sondages sont bons.","The polls look good."):lead>-.03?R("La lutte sera serrée.","It will be a close race."):R("L'opposition mène dans les sondages.","The opposition leads in the polls.");
-  /* le vote se fait groupe par groupe : intérêts, jugement sur le gouvernement, question nationale ; l'histoire ne pèse plus qu'un peu (±3) */
-  const res=(s2,bonus,gb)=>{const fat=POL[5].fatigue(s2);const g0=govParty5(s2);
-    const tide={};if(hw)tide[hw]=3;const bon=Object.assign({},tide);bon[g0]=(bon[g0]||0)+bonus*.5;
-    const r=polVote(s2,parties5(s2),{bonus:bon,gbonus:gb||{},fatigue:fat,noise:3});s2.lastVote=r;s2.lastVote.y=s2.year;
-    const T=s2.year<1966?95:s2.year<1973?108:s2.year<1981?110:s2.year<1989?122:125;
-    const ks=Object.keys(r.seats).sort((a,b)=>r.seats[b]-r.seats[a]);const seatN={};let left=T;ks.forEach((k,i)=>{seatN[k]=i===ks.length-1?left:Math.round(r.seats[k]*T);left-=seatN[k];});
-    const winner=ks[0];s2.lastElec=s2.year;const out=[];
-    const pct=k=>`${L(polPartyLab(s2,k))} ${Math.round((r.v[k]||0)*100)} % (${seatN[k]} ${fr()?'sièges':'seats'})`;
-    const line=ks.map(pct).join(' · ');
-    if(winner===g0){const seats=seatN[g0];s2.mandat=clamp(.8+seats/T*.45,.8,1.2);
-      out.push(F?`${premier5(s2).name} est reporté au pouvoir : ${seats>T*.7?'un balayage':'une majorité'}. ${line}.`:`${premier5(s2).name} is returned to power: ${seats>T*.7?'a sweep':'a majority'}. ${line}.`);}
-    else{const loser=premier5(s2).name;changeGov5(s2,winner);const np=premier5(s2);
-      out.push(F?`Défaite de ${loser}. ${line}. ${np.name} (${np.party.fr}) forme le gouvernement, avec son programme : vous gouvernez désormais par lui.`:`Defeat for ${loser}. ${line}. ${np.name} (${np.party.en}) forms the government, with its own program: you now govern through him.`);}
-    if((r.v[winner]||0)<Math.max(...Object.values(r.v))-.001)out.push(F?"Le parti qui a le plus de voix n'a pas le plus de sièges : le vote des anglophones et des allophones s'entasse dans quelques circonscriptions.":"The party with the most votes doesn't have the most seats: anglophone and allophone votes are packed into a few ridings.");
-    out.push(polVoteStory(s2,r));
-    if(hw&&govParty5(s2)!==hw&&s2===S){S.divergences=S.divergences||[];S.divergences.push({y:s2.year,id:'elec'+s2.year,title:R(`Les élections de ${s2.year}`,`The ${s2.year} election`),
-      text:{fr:`Élections de ${s2.year} : ${premier5(s2).name} gouverne. Dans l'histoire, c'est ${hp.name} qui l'emporte.`,en:`${s2.year} election: ${premier5(s2).name} governs. In history, ${hp.name} won.`}});}
-    return {fr:out.join(' '),en:out.join(' ')};};
-  const histLine=hw?(F?` Dans l'histoire, ${hp.name} (${PARTIES5[hw].short.fr}) gagne cette élection.`:` In history, ${hp.name} (${PARTIES5[hw].short.en}) wins this election.`):'';
-  const ch=[
-    {label:R("Le bilan : écoles, hôpitaux, routes","The record: schools, hospitals, roads"),desc:R("Parle à la classe moyenne et aux régions.","Speaks to the middle class and the regions."),fx:s2=>res(s2,2+Math.min(3,Math.max(0,(s2.eco-48)*.12)),{technocrates:{[govParty5(s2)]:2},precaires:{[govParty5(s2)]:2}})},
-    {label:R("L'économie d'abord : « 100 000 emplois »","The economy first: '100,000 jobs'"),desc:R("Rassure les salariés et les gens d'affaires ; coûte cher.","Reassures wage earners and business; costly."),fx:s2=>{s2.treasury=Math.round(s2.treasury*.9);const g=govParty5(s2);return res(s2,s2.chom>9?4:2,{ouvriers:{[g]:2},quebecinc:{[g]:3},capital:{[g]:2}});}},
-    {label:R('La nation : « Maîtres chez nous »','The nation: “Masters in our own house”'),desc:R("Mobilise les nationalistes ; effraie les anglophones, les allophones et le capital.","Mobilizes nationalists; frightens anglophones, allophones and capital."),fx:s2=>{s2.patri+=3;s2.off.gov-=6;const g=govParty5(s2);return res(s2,(s2.patri>=40?3:-2),{technocrates:{[g]:4},ouvriers:{[g]:2},anglos:{[g]:-6},allos:{[g]:-5},capital:{[g]:-4}});}}];
-  if(gov==='pq')ch.push({label:R("Promettre de ne pas tenir de référendum ce mandat-ci","Promise no referendum this term"),desc:R("Rassure les fédéralistes mous ; déçoit les militants.","Reassures soft federalists; disappoints activists."),fx:s2=>{s2.flags.noRefPromise=s2.year;return res(s2,2,{quebecinc:{pq:4},ouvriers:{pq:3},precaires:{pq:3},allos:{pq:2},technocrates:{pq:-1}});}});
-  else ch.push({label:R("La peur : « Le séparatisme vous coûtera cher »","Fear: 'Separatism will cost you'"),desc:R("Soude les anglophones, les allophones et les inquiets ; braque les nationalistes.","Rallies anglophones, allophones and the anxious; antagonizes nationalists."),fx:s2=>{s2.patri-=1;const g=govParty5(s2);return res(s2,1,{anglos:{[g]:4},allos:{[g]:4},precaires:{[g]:3},quebecinc:{[g]:2},technocrates:{[g]:-3}});}});
-  return {id:'E:elec5',routine:true,elec:true,place:'quebec',title:R(`Les élections de ${s.year}`,`The ${s.year} election`),
-   text:{fr:`${p.name} (${p.party.fr}) sollicite un mandat contre ${o.name} (${o.party.fr}). ${pollTxt.fr} ${mood.fr} Si vous perdez, c'est ${o.name} qui gouvernera, avec son programme. Sur quoi faire campagne ?${histLine}`,
-         en:`${p.name} (${p.party.en}) seeks a mandate against ${o.name} (${o.party.en}). ${pollTxt.en} ${mood.en} If you lose, ${o.name} will govern, with his own program. What should the campaign be about?${histLine}`},choices:ch};
+  const T=s.year<1966?95:s.year<1973?108:s.year<1981?110:s.year<1989?122:125;
+  return polElection(s,{id:'E:elec5',seats:T,hw,histName:hp?`${hp.name} (${PARTIES5[hw].short.fr})`:'',
+    parties:parties5,label:k=>polPartyLab(s,k),gov:govParty5(s),
+    headline:(s2,c)=>{const g0=govParty5(s2),w=c.winner;const wl=leader5(Object.assign({},s2,{year:s2.year+1}),w);const T2=T;
+      return w===g0?R(`${premier5(s2).name} est reporté au pouvoir : ${c.seatN[w]>T2*.7?'un balayage':'une majorité'} de ${c.seatN[w]} sièges sur ${T2}.`,`${premier5(s2).name} is returned to power: ${c.seatN[w]>T2*.7?'a sweep':'a majority'} of ${c.seatN[w]} seats out of ${T2}.`)
+        :R(`Défaite ${deN(premier5(s2).name)}. ${wl.name} (${L(polPartyLab(s2,w))}) prend le pouvoir avec ${c.seatN[w]} sièges sur ${T2}, et gouvernera avec son programme : vous gouvernez désormais par lui.`,`Defeat for ${premier5(s2).name}. ${wl.name} (${L(polPartyLab(s2,w))}) takes power with ${c.seatN[w]} of ${T2} seats, and will govern with its own program: you now govern through him.`);},
+    extra:(s2,r)=>{const o=[];if(r.v.pq!=null)o.push(R(`La question nationale : ${Math.round(s2.souv)} % des francophones sont souverainistes ; les anglophones et les allophones votent en bloc contre le PQ.`,`The national question: ${Math.round(s2.souv)}% of francophones are sovereigntists; anglophones and allophones vote as a bloc against the PQ.`));
+      if(r.v.egal>.03)o.push(R(`Le Parti Égalité prend ${Math.round(r.v.egal*100)} % : des anglophones punissent les libéraux pour la loi 178.`,`The Equality Party takes ${Math.round(r.v.egal*100)}%: anglophones punish the Liberals for Bill 178.`));return o;},
+    apply:(s2,c)=>{const g0=govParty5(s2),w=c.winner;s2.lastElec=s2.year;
+      if(w===g0)s2.mandat=clamp(.8+c.seatN[w]/T*.45,.8,1.2);else changeGov5(s2,w);
+      if(hw&&govParty5(s2)!==hw&&s2===S){S.divergences=S.divergences||[];S.divergences.push({y:s2.year,id:'elec'+s2.year,title:R(`Les élections de ${s2.year}`,`The ${s2.year} election`),
+        text:{fr:`Élections de ${s2.year} : ${premier5(s2).name} gouverne. Dans l'histoire, c'est ${hp.name} qui l'emporte.`,en:`${s2.year} election: ${premier5(s2).name} governs. In history, ${hp.name} won.`},why:c.why});}
+      return R('','');}});
 }
 
 /* ---------- les référendums ---------- */

@@ -323,3 +323,45 @@ function polVoteStory(s,r){const F=fr(),prev=s.prevByG||{};const sw=[];
   return t.trim();}
 /* un parti se discrédite auprès de tous (scandale, trahison) */
 function polPunish(s,party,v,only){if(!polCfg(s))return;for(const g of polGroups(s)){if(only&&!only.includes(g.id))continue;polRealign(s,g.id,party,v);}}
+
+/* =====================================================================================
+   Les élections : on ne choisit plus un thème de campagne ; le jeu dit qui gagne, et pourquoi
+   ===================================================================================== */
+const pc=v=>Math.round(v*100);
+/* « de » ou « d' » devant un nom */
+const deN=n=>(/^[AEIOUYÉÈÊaeiouyéèh]/.test(n)?"d'":'de ')+n;
+function polExplain(s,r,o){const F=fr(),P=s.pol,y=s.year,out=[];const w=o.winner,g0=o.gov,lab=k=>cap1(L(o.label(k)));
+  const gs=polGroups(s).filter(g=>P.g[g.id]&&r.byG[g.id]);const prev=s.prevByG||{};
+  /* la coalition gagnante */
+  const core=gs.map(g=>({g,c:P.g[g.id].share*(r.byG[g.id][w]||0),v:r.byG[g.id][w]||0})).sort((a,b)=>b.c-a.c).slice(0,3).filter(x=>x.v>=.3);
+  if(core.length)out.push(R(`Qui a voté ${lab(w)} : ${core.map(x=>`${L(x.g.name).toLowerCase()} (${pc(x.v)} %)`).join(', ')}.`,`Who voted ${lab(w)}: ${core.map(x=>`${L(x.g.name).toLowerCase()} (${pc(x.v)}%)`).join(', ')}.`));
+  /* les glissements depuis l'élection précédente, avec leurs causes */
+  const sw=gs.filter(g=>prev[g.id]).map(g=>({g,d:(r.byG[g.id][w]||0)-(prev[g.id][w]||0)})).filter(x=>x.d>=.06).sort((a,b)=>P.g[b.g.id].share*b.d-P.g[a.g.id].share*a.d).slice(0,2);
+  for(const x of sw){const st=P.g[x.g.id];const neg=w!==g0;
+    const cs=(st.whySat||[]).filter(c=>neg?c.v<-.5:c.v>.5).sort((a,b)=>neg?a.v-b.v:b.v-a.v).slice(0,2).map(c=>`« ${L(c.l)} »`);
+    const dch=Math.round((st.sat-(st.satAvg??st.sat)));
+    out.push(R(`${L(x.g.name)} : ${pc(r.byG[x.g.id][w])} % pour ${lab(w)} (+${pc(x.d)} points).${cs.length?` ${neg?'Ce qui les a éloignés du gouvernement':'Ce qui les a gardés fidèles'} : ${cs.join(', ')}.`:''}${Math.abs(dch)>=3?` Satisfaction : ${dch<0?'−':'+'}${Math.abs(dch)} points depuis l'élection précédente.`:''}`,
+      `${L(x.g.name)}: ${pc(r.byG[x.g.id][w])}% for ${lab(w)} (+${pc(x.d)} points).${cs.length?` ${neg?'What drove them from the government':'What kept them loyal'}: ${cs.join(', ')}.`:''}${Math.abs(dch)>=3?` Satisfaction: ${dch<0?'−':'+'}${Math.abs(dch)} points since the last election.`:''}`));}
+  /* le jugement d'ensemble sur le gouvernement */
+  if(g0){let a=0,ws=0;for(const g of gs){const st=P.g[g.id];a+=(st.sat-(st.satAvg??st.sat))*st.share;ws+=st.share;}a/=ws||1;
+    if(a<=-2.5)out.push(R(`Le gouvernement a déçu : dans l'ensemble, les électeurs vont moins bien qu'ils ne l'espéraient.`,`The government disappointed: overall, voters are worse off than they had hoped.`));
+    else if(a>=2.5)out.push(R(`Le gouvernement a livré : dans l'ensemble, les électeurs vont mieux qu'ils ne l'espéraient.`,`The government delivered: overall, voters are better off than they had hoped.`));
+    const n=y-(s.govSince||y);if(n>=8)out.push(R(`L'usure du pouvoir : le même parti gouverne depuis ${n} ans.`,`Wear and tear: the same party has governed for ${n} years.`));
+    else if(n<3&&w===g0)out.push(R(`Un gouvernement neuf profite encore de sa lune de miel.`,`A new government still enjoys its honeymoon.`));}
+  if(o.extra)out.push(...o.extra(s,r));
+  if(o.inversion)out.push(R("Le parti qui a le plus de voix n'a pas le plus de sièges : le mode de scrutin récompense les votes bien répartis.","The party with the most votes doesn't have the most seats: the voting system rewards well-spread votes."));
+  return out;}
+/* l'événement d'élection, commun aux trois périodes */
+function polElection(s,o){const F=fr(),y=s.year;
+  if(!s.elecCache||s.elecCache.id!==o.id||s.elecCache.y!==y){const bon={};if(o.hw)bon[o.hw]=3;
+    const r=polVote(s,o.parties(s),{bonus:bon,noise:3});const T=o.seats;const ks=Object.keys(r.seats).sort((a,b)=>r.seats[b]-r.seats[a]);const seatN={};let left=T;ks.forEach((k,i)=>{seatN[k]=i===ks.length-1?left:Math.round(r.seats[k]*T);left-=seatN[k];});
+    const winner=ks[0];const inversion=(r.v[winner]||0)<Math.max(...Object.values(r.v))-.001;
+    s.elecCache={id:o.id,y,r,seatN,ks,winner,why:polExplain(s,r,Object.assign({winner,inversion},o))};}
+  const c=s.elecCache,lab=k=>cap1(L(o.label(k)));
+  const line=c.ks.map(k=>`<b>${lab(k)}</b> ${pc(c.r.v[k]||0)} % · ${c.seatN[k]} ${F?'sièges':'seats'}`).join('<br>');
+  const head=o.headline(s,c);
+  const hist=o.hw?(o.hw===c.winner?R(`Comme dans l'histoire : ${o.histName} l'emporte.`,`As in history: ${o.histName} wins.`):R(`Dans l'histoire, c'est ${o.histName} qui l'emporte. Ici, le résultat diffère : les raisons sont ci-dessous.`,`In history, ${o.histName} won. Here the result differs: the reasons are below.`)):null;
+  return {id:o.id,routine:true,elec:true,info:true,place:'quebec',title:R(`Les élections de ${y}`,`The ${y} election`),
+    text:{fr:`${head.fr}<br><span class="elecline">${line}</span>${hist?`<br><em>${hist.fr}</em>`:''}`,en:`${head.en}<br><span class="elecline">${line.replace(/ %/g,'%').replace(/sièges/g,'seats')}</span>${hist?`<br><em>${hist.en}</em>`:''}`},
+    whyNot:c.why,whyHead:R('Pourquoi ce résultat ?','Why this result?'),
+    choices:[{label:R('Continuer','Continue'),fx:s2=>{const cc=s2.elecCache||c;s2.lastVote=cc.r;cc.r.y=s2.year;const t=o.apply(s2,cc);polVoteStory(s2,cc.r);s2.elecCache=null;return t;}}]};}

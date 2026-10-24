@@ -574,3 +574,13 @@ section.acad h4{color:#22406b}
 /* toutes les fenêtres défilent : c'est le voile (l'overlay) qui défile, jamais un contenu coupé */
 .overlay>.letter,.overlay>.book{max-height:none;overflow:visible}
 .overlay .letter .body,.overlay .page,.overlay .book.gazette,.letter.help .body{max-height:none;overflow:visible}
+/* les nouvelles ne recouvrent plus la jauge « L'histoire s'écarte » */
+@media (min-width:701px){.toasts{top:66px}}
+/* l'histoire bifurque */
+.tag.k-bif{background:#efe2f7;color:#5b2b7a;border-color:#c9a9de}
+aside.whynot{margin:14px 0;padding:12px 16px;border-left:4px solid #7a3fa0;background:#f4ecf8;color:var(--ink);border-radius:3px;font-family:var(--text)}
+aside.whynot b{display:block;font-size:1.05rem;margin-bottom:4px}aside.whynot ul{margin:4px 0 6px;padding-left:1.1em}aside.whynot li{margin:4px 0;line-height:1.45}
+aside.whynot .quiet{margin:6px 0 0;font-size:.85rem}
+.fork .forkwhy{display:block;margin-top:3px;font-size:.8rem;color:var(--ink-soft)}
+aside.whynot.elec{border-left-color:var(--blue);background:#eaf0f7}
+.elecline{display:inline-block;margin:8px 0 4px;font-size:.95rem;line-height:1.6}
