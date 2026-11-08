@@ -24,6 +24,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .seg.small button{padding:3px 10px;font-size:.78rem}
 .ghost{background:transparent;border:1px solid var(--night-line);border-radius:999px;padding:4px 12px;color:var(--moon)}
 .ghost.big{padding:10px 20px;font-size:1rem}
+a.ghost{display:inline-block;text-decoration:none}a.ghost:hover{border-color:var(--moon)}
 .cta{background:linear-gradient(180deg,#d4b061,#b08636);color:#20170c;border:0;border-radius:4px;padding:11px 22px;font-family:var(--caps);font-size:1.15rem;letter-spacing:.04em;box-shadow:0 1px 0 #f1dca0 inset,0 2px 8px #0006}
 .cta small{display:block;font-family:var(--ui);font-size:.75rem;letter-spacing:0;opacity:.75}
 .quiet{color:var(--ink-faint);font-size:.9rem}
