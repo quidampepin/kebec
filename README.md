@@ -42,6 +42,6 @@ Double-cliquez sur `index.html`. Aucun serveur ni installation : le jeu tourne d
 
 ## Crédits
 
-Conception, recherche et direction : David Pépin. Code écrit avec Claude (Anthropic). Les illustrations viennent de Wikimedia Commons ; chaque légende renvoie à sa source. Les crédits complets et la bibliographie sont dans le jeu. Fait partie de [davidpepin.ca/projets](https://www.davidpepin.ca/projets/).
+Conception, recherche et direction : David Pepin. Code écrit avec Claude (Anthropic). Les illustrations viennent de Wikimedia Commons ; chaque légende renvoie à sa source. Les crédits complets et la bibliographie sont dans le jeu. Fait partie de [davidpepin.ca/projets](https://www.davidpepin.ca/projets/).
 
 La page publiée charge Google Analytics (pages vues seulement, même propriété que davidpepin.ca). La balise ne s'exécute que sur davidpepin.ca, pas quand on ouvre le fichier localement.
